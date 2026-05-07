@@ -1,0 +1,15 @@
+{
+  "expo": {
+    "name": "Scopa",
+    "slug": "scopa",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "splash": { "image": "./assets/splash.png", "resizeMode": "contain", "backgroundColor": "#EA580C" },
+    "scheme": "sallycards",
+    "ios": { "bundleIdentifier": "com.sallycards.scopa", "supportsTablet": true },
+    "android": { "package": "com.sallycards.scopa", "adaptiveIcon": { "foregroundImage": "./assets/adaptive-icon.png", "backgroundColor": "#EA580C" }, "usesCleartextTraffic": true },
+    "plugins": ["expo-router", "expo-localization", "expo-font"],
+    "newArchEnabled": true, "extra": { "eas": { "projectId": "sallycards-scopa" }, "usesCleartextTraffic": true }
+  }
+}
