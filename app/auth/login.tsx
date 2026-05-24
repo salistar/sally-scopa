@@ -22,6 +22,7 @@ import { router } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
 import * as api from '../../shared/api';
+import { useGoogleSignIn } from '../../shared/googleAuth';
 import { APP_CONFIG } from '../../src/config/app.config';
 
 const APP_COLOR = APP_CONFIG.primary;
@@ -64,6 +65,33 @@ export default function LoginScreen() {
   };
 
   /** Create a guest session and navigate to tabs */
+  const { promptAsync, ready: googleReady, missingClientId, missingNative } = useGoogleSignIn(
+    async (idToken: string) => {
+      setLoading(true);
+      try {
+        await api.loginWithGoogle(idToken, { gameType: 'scopa' });
+        console.log('[Scopa/Login] Google login successful');
+        router.replace('/(tabs)');
+      } catch (e: any) {
+        console.error('[Scopa/Login] Google error:', e);
+        Alert.alert(t('error'), e.message || 'Google sign-in failed');
+      } finally {
+        setLoading(false);
+      }
+    },
+    (msg: string) => { console.warn('[Scopa/Login] Google:', msg); setLoading(false); }
+  );
+
+  const handleGoogle = async () => {
+    if (missingClientId) {
+      Alert.alert('Configuration Google', "EXPO_PUBLIC_GOOGLE_CLIENT_ID manquant.");
+      return;
+    }
+    setLoading(true);
+    try { await promptAsync(); }
+    catch (e: any) { setLoading(false); Alert.alert(t('error'), e?.message || 'Google sign-in failed'); }
+  };
+
   const handleGuest = async () => {
     setLoading(true);
     console.log('[Scopa/LoginScreen] State update: loading = true');
@@ -133,6 +161,24 @@ export default function LoginScreen() {
           </TouchableOpacity>
 
           {/* Guest mode button */}
+          <TouchableOpacity
+            style={s.googleButton}
+            onPress={handleGoogle}
+            disabled={loading}
+            activeOpacity={0.85}
+          >
+            <Image
+              source={require('../../assets/google-g.png')}
+              style={s.googleLogo}
+              resizeMode="contain"
+            />
+            <Text style={s.googleText}>
+              {missingNative
+                ? 'Google (dev build requis)'
+                : 'Continuer avec Google'}
+            </Text>
+          </TouchableOpacity>
+
           <TouchableOpacity style={s.guestButton} onPress={handleGuest} disabled={loading}>
             <Text style={s.guestText}>{t('guest')}</Text>
           </TouchableOpacity>
@@ -204,6 +250,9 @@ const s = StyleSheet.create({
     borderColor: 'rgba(255,255,255,0.15)',
   },
   guestText: { color: '#9CA3AF', fontSize: 14, fontWeight: '600' },
+  googleButton: { flexDirection: 'row', backgroundColor: '#fff', borderRadius: 12, padding: 14, alignItems: 'center', justifyContent: 'center', gap: 10, marginBottom: 12 },
+  googleLogo: { width: 22, height: 22 },
+  googleText: { color: '#1F2937', fontSize: 15, fontWeight: '700' },
   credentials: {
     marginTop: 32,
     padding: 16,

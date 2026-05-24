@@ -4,7 +4,7 @@
  * @project SallyCards - Scopa
  */
 
-import React, { useReducer, useCallback, useEffect, useRef, useState } from 'react';
+import React, { useReducer, useCallback, useEffect, useRef, useState, useMemo } from 'react';
 import {
   View,
   Text,
@@ -16,7 +16,7 @@ import {
   Modal,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useRouter } from 'expo-router';
+import { useRouter, useLocalSearchParams } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 
@@ -33,6 +33,10 @@ import {
   findCaptureOptions,
   CaptureOption,
 } from '../../src/game/scopaEngine';
+import {
+  parseDifficulty, BOT_PRESETS, thinkDelay, shouldRandomize,
+  difficultyBadge, difficultyColor,
+} from '@sally/game-engine';
 import { getCardImage, getCardBackImage } from '../../src/game/cardAssets';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
@@ -45,6 +49,9 @@ const BRAND_COLOR = '#27ae60';
 
 export default function ScopaLocalScreen() {
   const router = useRouter();
+  const params = useLocalSearchParams<{ difficulty?: string }>();
+  const difficulty = useMemo(() => parseDifficulty(params.difficulty), [params.difficulty]);
+  const botConfig = BOT_PRESETS[difficulty];
   const [state, dispatch] = useReducer(gameReducer, createInitialState());
   const [selectedCardId, setSelectedCardId] = useState<string | null>(null);
   const [message, setMessage] = useState<string>('');
@@ -73,7 +80,12 @@ export default function ScopaLocalScreen() {
 
     botTimerRef.current = setTimeout(() => {
       try {
-        const move = botPlay(state);
+        let move = botPlay(state);
+        // Humanisation : easy/medium peut rater une capture optimale
+        if (shouldRandomize(botConfig) && current.hand.length > 1) {
+          const randomCard = current.hand[Math.floor(Math.random() * current.hand.length)];
+          move = { cardId: randomCard.id, captureCardIds: [] } as any;
+        }
         dispatch({
           type: 'PLAY_CARD',
           playerId: current.id,
@@ -88,10 +100,10 @@ export default function ScopaLocalScreen() {
       } catch {
         // Bot has no cards
       }
-    }, 1000 + Math.random() * 800);
+    }, thinkDelay(botConfig));
 
     return () => { if (botTimerRef.current) clearTimeout(botTimerRef.current); };
-  }, [state.phase, state.currentPlayerIndex]);
+  }, [state.phase, state.currentPlayerIndex, botConfig]);
 
   // Handle selecting_capture phase (auto-select for bot)
   useEffect(() => {
@@ -191,6 +203,9 @@ export default function ScopaLocalScreen() {
             <Ionicons name="arrow-back" size={22} color="#fff" />
           </TouchableOpacity>
           <Text style={styles.headerTitle}>Scopa</Text>
+          <View style={[styles.diffBadge, { backgroundColor: difficultyColor(difficulty), marginRight: 6 }]}>
+            <Text style={styles.diffBadgeText}>{difficultyBadge(difficulty)}</Text>
+          </View>
           <View style={styles.scoreContainer}>
             <Text style={styles.scoreLabel}>Manche {state.roundNumber}</Text>
           </View>
@@ -369,6 +384,8 @@ const styles = StyleSheet.create({
     paddingVertical: 4,
   },
   scoreLabel: { color: BRAND_COLOR, fontSize: 12, fontWeight: '700' },
+  diffBadge: { paddingHorizontal: 8, paddingVertical: 3, borderRadius: 6 },
+  diffBadgeText: { color: '#fff', fontSize: 10, fontWeight: '900', letterSpacing: 1 },
   opponentArea: {
     paddingHorizontal: 16,
     paddingVertical: 8,
