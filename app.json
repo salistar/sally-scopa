@@ -8,7 +8,12 @@
     "splash": {
       "image": "./assets/splash.png",
       "resizeMode": "contain",
-      "backgroundColor": "#EA580C"
+      "backgroundColor": "#0A2F1A",
+      "dark": {
+        "image": "./assets/splash.png",
+        "resizeMode": "contain",
+        "backgroundColor": "#0A2F1A"
+      }
     },
     "scheme": "sallycards",
     "ios": {
