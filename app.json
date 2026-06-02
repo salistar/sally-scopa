@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "Scopa",
+    "name": "Sally Scopa",
     "slug": "scopa",
     "version": "1.0.0",
     "orientation": "portrait",
@@ -8,11 +8,11 @@
     "splash": {
       "image": "./assets/splash.png",
       "resizeMode": "contain",
-      "backgroundColor": "#0A2F1A",
+      "backgroundColor": "#065F46",
       "dark": {
         "image": "./assets/splash.png",
         "resizeMode": "contain",
-        "backgroundColor": "#0A2F1A"
+        "backgroundColor": "#065F46"
       }
     },
     "scheme": "sallycards",
@@ -30,18 +30,21 @@
       "package": "com.sallycards.scopa",
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
-        "backgroundColor": "#EA580C"
+        "backgroundColor": "#059669"
       },
       "usesCleartextTraffic": true,
       "permissions": [
         "ACCESS_FINE_LOCATION",
-        "ACCESS_COARSE_LOCATION"
+        "ACCESS_COARSE_LOCATION",
+        "android.permission.ACCESS_COARSE_LOCATION",
+        "android.permission.ACCESS_FINE_LOCATION"
       ],
       "config": {
         "googleMaps": {
           "apiKey": "AIzaSyAa1lBSroSXA-Om4mio84-SWAcmzQgYv8w"
         }
-      }
+      },
+      "versionCode": 5
     },
     "plugins": [
       "expo-router",
@@ -54,12 +57,16 @@
         }
       ]
     ],
-    "newArchEnabled": true,
+    "newArchEnabled": false,
     "extra": {
-      "eas": {
-        "projectId": "sallycards-scopa"
+      "usesCleartextTraffic": true,
+      "router": {
+        "origin": false
       },
-      "usesCleartextTraffic": true
-    }
+      "eas": {
+        "projectId": "1b91bd39-0f91-46b6-9ae7-2688ab2be314"
+      }
+    },
+    "owner": "idriss.kriouile"
   }
 }

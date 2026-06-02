@@ -5,8 +5,8 @@
  */
 export const APP_CONFIG = {
   name: "Scopa",
-  primary: "#F59E0B",
-  secondary: "#B45309",
+  primary: "#059669",
+  secondary: "#047857",
   splash: {
     glow: "rgba(180,83,9,0.6)",
     sallyGlow: "rgba(245,158,11,0.8)",
